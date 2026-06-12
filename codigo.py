@@ -19,7 +19,7 @@ st.markdown("""
 <style>
     [data-testid="stAppViewContainer"] { background-color: #0f1117; color: #e8eaf6; }
     [data-testid="stSidebar"] { background-color: #161b2e; border-right: 1px solid #1e2a4a; }
-    .block-container { padding-top: 2rem; }
+    .block-container { padding-top: 4rem; }
 
     .metric-card {
         background: linear-gradient(135deg, #1a2340 0%, #1e2d52 100%);
