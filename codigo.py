@@ -345,8 +345,7 @@ else:
         hide_index=True,
         height=min(400, 35 * len(tabela) + 50),
 
-        st.markdown('<p class="section-title">☁️ Nuvem de Palavras</p>', unsafe_allow_html=True
-    )
+        st.markdown('<p class="section-title">☁️ Nuvem de Palavras</p>', unsafe_allow_html=True)
         gerar_nuvem(df_view, st.session_state.last_keyword)
 
     )
