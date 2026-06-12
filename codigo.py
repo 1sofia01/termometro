@@ -37,7 +37,7 @@ st.markdown("""
     .metric-card .sub  { font-size: 0.82rem; color: #90a4ae; margin-top: 4px; }
 
     .main-title    { font-size: 1.9rem; font-weight: 800; color: #e8eaf6; margin-bottom: 0.2rem; }
-    .main-subtitle { font-size: 0.95rem; color: #8892b0; margin-bottom: 3rem; }
+    .main-subtitle { font-size: 0.95rem; color: #8892b0; margin-bottom: 1.5rem; }
 
     .section-title {
         font-size: 1.1rem; font-weight: 600; color: #cfd8dc;
