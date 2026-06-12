@@ -5,6 +5,8 @@ from datetime import datetime, timedelta
 import requests
 import json
 import os
+from wordcloud import WordCloud
+import matplotlib.pyplot as plt
 
 st.set_page_config(
     page_title="Termômetro de Saúde Pública na Mídia",
@@ -128,7 +130,32 @@ def processar_json(raw: dict) -> pd.DataFrame:
     df = df.sort_values("data_hora").reset_index(drop=True)
     return df
 
+def gerar_nuvem(df: pd.DataFrame, keyword: str):
+    texto = " ".join(df["titulo"].dropna().tolist())
+    if not texto.strip():
+        st.info("Sem títulos suficientes para gerar a nuvem de palavras.")
+        return
 
+    wc = WordCloud(
+        width=1200,
+        height=500,
+        background_color="#0f1117",
+        colormap="Blues",
+        max_words=80,
+        stopwords={
+            "de", "da", "do", "das", "dos", "em", "no", "na", "nos", "nas",
+            "e", "a", "o", "as", "os", "um", "uma", "para", "por", "com",
+            "que", "se", "é", "ao", "à", "seu", "sua", "após", "sobre",
+            "mais", "como", keyword.lower(),
+        }
+    ).generate(texto)
+
+    fig, ax = plt.subplots(figsize=(12, 5))
+    ax.imshow(wc, interpolation="bilinear")
+    ax.axis("off")
+    fig.patch.set_facecolor("#0f1117")
+    st.pyplot(fig)
+    plt.close(fig)
 
 with st.sidebar:
     st.markdown("### 🩺 Termômetro de Saúde")
@@ -260,6 +287,8 @@ if modo == "geral":
                           xaxis=dict(gridcolor="#1e2a4a"))
     st.plotly_chart(fig_bar, use_container_width=True)
 
+    st.markdown('<p class="section-title">☁️ Nuvem de Palavras</p>', unsafe_allow_html=True)
+    gerar_nuvem(df_view, st.session_state.last_keyword)
 
 else:
     st.markdown(f'<p class="section-title">📰 {veiculo_selecionado} — <em>{st.session_state.last_keyword}</em></p>',
@@ -315,6 +344,10 @@ else:
         },
         hide_index=True,
         height=min(400, 35 * len(tabela) + 50),
+
+        st.markdown('<p class="section-title">☁️ Nuvem de Palavras</p>', unsafe_allow_html=True)
+        gerar_nuvem(df_view, st.session_state.last_keyword)
+
     )
 
 st.markdown("<br>", unsafe_allow_html=True)
