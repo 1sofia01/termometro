@@ -36,9 +36,8 @@ st.markdown("""
     .metric-card .value { font-size: 2.2rem; font-weight: 700; color: #64b5f6; line-height: 1; }
     .metric-card .sub  { font-size: 0.82rem; color: #90a4ae; margin-top: 4px; }
 
-    st.markdown('<br>', unsafe_allow_html=True)
-    st.markdown('<p class="main-title">🩺 Termômetro de Saúde Pública na Mídia</p>', unsafe_allow_html=True)
-    st.markdown('<p class="main-subtitle">Monitore como a imprensa brasileira cobre temas de saúde pública</p>', unsafe_allow_html=True)
+    .main-title    { font-size: 1.9rem; font-weight: 800; color: #e8eaf6; margin-bottom: 0.2rem; }
+    .main-subtitle { font-size: 0.95rem; color: #8892b0; margin-bottom: 1.5rem; }
 
     .section-title {
         font-size: 1.1rem; font-weight: 600; color: #cfd8dc;
