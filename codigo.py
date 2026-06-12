@@ -27,7 +27,7 @@ st.markdown("""
     border-radius: 12px;
     padding: 20px 24px;
     text-align: center;
-    margin-bottom: 12px;
+    margin-bottom: 40px;
     height: 140px;
     display: flex;
     flex-direction: column;
