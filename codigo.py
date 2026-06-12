@@ -22,12 +22,16 @@ st.markdown("""
     .block-container { padding-top: 4rem; }
 
     .metric-card {
-        background: linear-gradient(135deg, #1a2340 0%, #1e2d52 100%);
-        border: 1px solid #2a3a6a;
-        border-radius: 12px;
-        padding: 20px 24px;
-        text-align: center;
-        margin-bottom: 12px;
+    background: linear-gradient(135deg, #1a2340 0%, #1e2d52 100%);
+    border: 1px solid #2a3a6a;
+    border-radius: 12px;
+    padding: 20px 24px;
+    text-align: center;
+    margin-bottom: 12px;
+    height: 140px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
     }
     .metric-card .label {
         font-size: 0.78rem; color: #8892b0;
