@@ -6,7 +6,6 @@ import requests
 import json
 import os
 
-# ── Configuração da página ──────────────────────────────────────────────────
 st.set_page_config(
     page_title="Termômetro de Saúde Pública na Mídia",
     page_icon="🩺",
@@ -14,7 +13,6 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-# ── Estilo CSS ──────────────────────────────────────────────────────────────
 st.markdown("""
 <style>
     [data-testid="stAppViewContainer"] { background-color: #0f1117; color: #e8eaf6; }
@@ -51,14 +49,11 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# ── Chave API (via Streamlit Secrets) ───────────────────────────────────────
 API_KEY = st.secrets["NEWSAPI_KEY"]
 
-# ── Cache local ─────────────────────────────────────────────────────────────
 CACHE_DIR = "cache"
 os.makedirs(CACHE_DIR, exist_ok=True)
 
-# ── Funções de dados ─────────────────────────────────────────────────────────
 
 def buscar_noticias(keyword: str, start_date: datetime, end_date: datetime) -> pd.DataFrame:
     """Busca notícias reais na NewsAPI com cache local de 24h."""
@@ -66,7 +61,6 @@ def buscar_noticias(keyword: str, start_date: datetime, end_date: datetime) -> p
     cache_key = f"{keyword.lower()}_{start_date.date()}_{end_date.date()}"
     cache_file = os.path.join(CACHE_DIR, f"{cache_key}.json")
 
-    # Usar cache se existir e tiver menos de 24h
     if os.path.exists(cache_file):
         idade = (datetime.now() - datetime.fromtimestamp(os.path.getmtime(cache_file))).total_seconds()
         if idade < 86400:
@@ -88,7 +82,6 @@ def buscar_noticias(keyword: str, start_date: datetime, end_date: datetime) -> p
         resp.raise_for_status()
         raw = resp.json()
 
-        # Salvar cache
         with open(cache_file, "w", encoding="utf-8") as f:
             json.dump(raw, f, ensure_ascii=False)
 
@@ -112,7 +105,6 @@ def processar_json(raw: dict) -> pd.DataFrame:
 
     for a in articles:
         titulo = a.get("title", "") or ""
-        # Ignorar artigos removidos ou sem título
         if not titulo or titulo == "[Removed]":
             continue
 
@@ -137,7 +129,6 @@ def processar_json(raw: dict) -> pd.DataFrame:
     return df
 
 
-# ── Sidebar ──────────────────────────────────────────────────────────────────
 
 with st.sidebar:
     st.markdown("### 🩺 Termômetro de Saúde")
@@ -148,7 +139,6 @@ with st.sidebar:
                             placeholder="Ex: dengue, câncer, SUS…")
 
     st.markdown("**📅 Período**")
-    # NewsAPI gratuita permite no máximo 30 dias no passado
     col_a, col_b = st.columns(2)
     with col_a:
         start_date = st.date_input("De", value=datetime.today() - timedelta(days=29),
@@ -161,7 +151,6 @@ with st.sidebar:
         st.error("Data inicial maior que a final.")
         st.stop()
 
-    # Limite do plano gratuito da NewsAPI: últimos 30 dias
     limite = datetime.today().date() - timedelta(days=30)
     if start_date < limite:
         st.warning("⚠️ O plano gratuito da NewsAPI cobre apenas os últimos 30 dias.")
@@ -170,17 +159,14 @@ with st.sidebar:
 
     st.markdown("<hr style='border-color:#2a3a6a; margin: 1rem 0'>", unsafe_allow_html=True)
 
-    veiculo_selecionado = None  # será preenchido após a busca
+    veiculo_selecionado = None
 
-
-# ── Estado de sessão ─────────────────────────────────────────────────────────
 
 if "df" not in st.session_state:
     st.session_state.df = None
 if "last_keyword" not in st.session_state:
     st.session_state.last_keyword = ""
 
-# ── Área principal ────────────────────────────────────────────────────────────
 
 st.markdown('<p class="main-title">🩺 Termômetro de Saúde Pública na Mídia</p>', unsafe_allow_html=True)
 st.markdown('<p class="main-subtitle">Monitore como a imprensa brasileira cobre temas de saúde pública</p>', unsafe_allow_html=True)
@@ -205,7 +191,6 @@ if df is None or df.empty:
     st.info("Nenhuma notícia encontrada para essa palavra-chave no período selecionado.")
     st.stop()
 
-# ── Selectbox de veículo (após carregar dados) ────────────────────────────────
 
 veiculos_disponiveis = ["Todos os Veículos"] + sorted(df["veiculo"].unique().tolist())
 
@@ -213,7 +198,6 @@ with st.sidebar:
     st.markdown("**📰 Veículo de imprensa**")
     veiculo_selecionado = st.selectbox("", veiculos_disponiveis, label_visibility="collapsed")
 
-# ── Filtro ────────────────────────────────────────────────────────────────────
 
 if veiculo_selecionado and veiculo_selecionado != "Todos os Veículos":
     df_view = df[df["veiculo"] == veiculo_selecionado].copy()
@@ -222,7 +206,6 @@ else:
     df_view = df.copy()
     modo = "geral"
 
-# ── MODO GERAL ────────────────────────────────────────────────────────────────
 
 if modo == "geral":
     st.markdown(f'<p class="section-title">📊 Visão Geral — <em>{st.session_state.last_keyword}</em></p>',
@@ -247,7 +230,6 @@ if modo == "geral":
             <div class="sub">{sub}</div>
         </div>""", unsafe_allow_html=True)
 
-    # Gráfico de área — volume por dia
     st.markdown('<p class="section-title">📈 Volume de Publicações por Dia</p>', unsafe_allow_html=True)
     ts = df_view.groupby("data").size().reset_index(name="qtd")
     fig_line = px.area(ts, x="data", y="qtd",
@@ -261,7 +243,6 @@ if modo == "geral":
                            yaxis=dict(gridcolor="#1e2a4a"))
     st.plotly_chart(fig_line, use_container_width=True)
 
-    # Gráfico de barras — ranking de veículos
     st.markdown('<p class="section-title">🏆 Ranking de Veículos</p>', unsafe_allow_html=True)
     top = (df_view.groupby("veiculo").size()
            .reset_index(name="qtd")
@@ -279,8 +260,6 @@ if modo == "geral":
                           xaxis=dict(gridcolor="#1e2a4a"))
     st.plotly_chart(fig_bar, use_container_width=True)
 
-
-# ── MODO INDIVIDUAL ───────────────────────────────────────────────────────────
 
 else:
     st.markdown(f'<p class="section-title">📰 {veiculo_selecionado} — <em>{st.session_state.last_keyword}</em></p>',
@@ -307,7 +286,6 @@ else:
             <div class="sub">{sub}</div>
         </div>""", unsafe_allow_html=True)
 
-    # Gráfico de linhas individual
     st.markdown('<p class="section-title">📈 Comportamento ao Longo do Período</p>', unsafe_allow_html=True)
     ts_v = df_view.groupby("data").size().reset_index(name="qtd")
     fig_v = px.line(ts_v, x="data", y="qtd", markers=True,
@@ -321,7 +299,6 @@ else:
                         yaxis=dict(gridcolor="#1e2a4a"))
     st.plotly_chart(fig_v, use_container_width=True)
 
-    # Tabela de manchetes
     st.markdown('<p class="section-title">📋 Manchetes Publicadas</p>', unsafe_allow_html=True)
     tabela = df_view[["data", "titulo", "url"]].copy()
     tabela["data"] = tabela["data"].dt.strftime("%d/%m/%Y")
@@ -340,7 +317,6 @@ else:
         height=min(400, 35 * len(tabela) + 50),
     )
 
-# ── Rodapé ────────────────────────────────────────────────────────────────────
 st.markdown("<br>", unsafe_allow_html=True)
 st.markdown(
     "<hr style='border-color:#1e2a4a'>"
